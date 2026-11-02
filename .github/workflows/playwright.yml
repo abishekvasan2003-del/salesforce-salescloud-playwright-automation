@@ -20,11 +20,14 @@ concurrency:
 jobs:
   test:
     timeout-minutes: 30
-    runs-on: ubuntu-latest
+    # Pinned instead of ubuntu-latest so the runner image only changes when this line does.
+    # ubuntu-24.04 is the image ubuntu-latest points to today. Move to a newer image
+    # (for example ubuntu-26.04) deliberately, after checking that Playwright supports it.
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           # Matches local development (Node 24); Playwright 1.64 needs Node 20 or newer.
           node-version: 24
@@ -43,7 +46,7 @@ jobs:
         run: npm run test:ci
 
       - name: Upload HTML report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
@@ -52,7 +55,7 @@ jobs:
           retention-days: 30
 
       - name: Upload test results (JUnit XML and failure evidence)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: test-results
