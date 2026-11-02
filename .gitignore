@@ -1,0 +1,19 @@
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Playwright MCP session output (snapshots, screenshots, console logs)
+.playwright-mcp/
+
+# Environment files (may hold credentials) - keep the template tracked
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
