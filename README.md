@@ -167,7 +167,7 @@ Tests run one at a time (`workers: 1`, `fullyParallel: false`) because they shar
 
 | Area | Spec | Needs login | Effect on Salesforce |
 | --- | --- | --- | --- |
-| Public login smoke test | `salesforce-login.spec.ts` | No | Read-only. Loads the public login page. |
+| Public login smoke test | `salesforce-login.spec.ts` | No | Read-only. Loads the public login page and checks the form fields of either the email-first or the username/password layout. It never submits the form. |
 | Sample Playwright test | `example.spec.ts` | No | None. It targets the public Playwright website. |
 | Authentication smoke test | `auth-check.auth.spec.ts` | Yes | Read-only. Checks that the saved login opens the Sales home page. |
 | Lead creation | `lead-create.auth.spec.ts` | Yes | **Creates a real Lead.** Skipped unless the guard is set. |
@@ -225,7 +225,23 @@ CI also enables `forbidOnly` and two retries.
 
 Authenticated tests are excluded from CI. They need a session that a person signed into manually, and CI has no Salesforce credentials or saved login. The `authenticated` project is not even defined when `CI` is set.
 
-> **Status:** The CI workflow and the new CI reporter configuration have not been executed yet, so they are not runtime-verified. The workflow file has only been checked for valid YAML.
+### CI verification
+
+The latest verified GitHub Actions run completed successfully: [run 41504909016](https://github.com/abishekvasan2003-del/salesforce-salescloud-playwright-automation/actions/runs/41504909016), for commit `dd9aacf349750c9028b5e3ce0e0c2556be1a0661`, triggered by a push to `main`.
+
+- **Result:** The run completed with the conclusion `success` on `ubuntu-24.04`.
+- **Steps that succeeded:** `actions/checkout@v7`, `actions/setup-node@v7`, `npm ci`, the type check, the Chromium installation, the unauthenticated Playwright tests, the HTML report upload and the test-results upload.
+- **Tests:** The Playwright summary reported 3 passed. No flaky tests or retries were reported.
+- **Warnings:** The run had no Node.js 20 deprecation annotation and no `ubuntu-latest` migration annotation. Both appeared in the first CI run, before the action versions were upgraded and the runner was pinned.
+- **Artifacts:** `playwright-report` and `test-results` were uploaded with 30-day retention. The artifacts were not downloaded or opened for this README.
+
+What this run does **not** show:
+
+- It verifies only the **3 unauthenticated tests** (the login smoke test and the two sample Playwright tests). **No authenticated Salesforce test ran in CI.** Those tests need a manually saved login and remain local only.
+- The login smoke test supports both the email-first layout and the username/password layout. This run does not establish which layout branch was exercised, so the other branch has no CI evidence.
+- It is a single successful run and does not demonstrate stability over repeated runs. An earlier CI run of the login smoke test, which then asserted a fixed heading, was reported flaky and passed on retry. That is why the test now detects the layout from the form fields instead.
+- It was triggered by a push. The pull-request trigger and the pull-request-only cancellation of in-progress runs have not been exercised.
+- The `junit` reporter's output file was not inspected.
 
 ## Verification status
 
@@ -236,18 +252,18 @@ The passing runs listed below were made **before** the sample data was moved out
 | Item | Implemented | Runtime-verified | Not yet runtime-verified |
 | --- | --- | --- | --- |
 | Page Object Model and fixtures | Yes. Inspected statically. | Partly. Only the page objects and fixtures used by the passing runs below have runtime evidence. | `LeadConversionResult` and the dialog's `convert()` method. |
-| TypeScript typecheck | Yes | Yes. `npm run typecheck` passed after the CI and reporting changes and again after the sample data was moved to environment variables. | None. |
+| TypeScript typecheck | Yes | Yes. `npm run typecheck` passed after the CI and reporting changes and again after the sample data was moved to environment variables. The CI run also passed its type check step. | None. |
 | Lead creation workflow | Yes | The workflow passed earlier, before the opt-in guard was added. | The new opt-in guard has not been runtime-tested. |
 | Lead conversion dialog | Yes | Yes. 4 of 4 tests passed, before the sample data was externalized. | The externalized version, including its skip when `SF_CONVERT_LEAD_ID` is missing, has not been run. |
 | Lead conversion preparation | Yes | Yes. 2 of 2 tests passed, before the sample data was externalized. | The externalized version and its skip behavior have not been run. |
 | Account, Contact and Opportunity details | Yes | Yes. 3 of 3 tests passed, before the sample data was externalized. | The externalized version and its skip behavior have not been run. |
 | Guarded Lead conversion | Yes | No. | A conversion has never been performed. The confirmation screen and the post-conversion record checks are unverified assumptions. The new `SF_CONVERT_LEAD_ID` requirement has not been run either. |
 | Opportunity-less conversion test | Design only (`test.fixme`) | No. | It never runs. |
-| GitHub Actions workflow | Yes | No. | The workflow has not been run. |
-| CI reporters | Yes | No. | The `github` and `junit` reporters have not been run. |
-| Public login smoke test and sample test | Yes | Not recorded in this project history. | They have not been re-checked for this README. |
+| GitHub Actions workflow | Yes | Yes. Latest verified run: 41504909016 (commit `dd9aacf`, push to `main`) succeeded on `ubuntu-24.04` with 3 unauthenticated tests passed and both artifacts uploaded. See [CI verification](#ci-verification). | Repeated-run stability, the pull-request trigger, and any authenticated tests, which are excluded from CI by design. |
+| CI reporters | Yes | Partly. In that run the `github` reporter produced a run-summary annotation and a non-empty `playwright-report` artifact was uploaded. | The `junit` output file was not inspected. |
+| Public login smoke test and sample test | Yes | Yes. Passed in the latest CI run (3 tests passed, no flaky tests or retries reported). | Which login layout branch ran, and stability across repeated runs. An earlier CI run of the previous login assertion was flaky. |
 
-Not every test or workflow in this repository has been shown to pass. Treat anything in the "Not yet runtime-verified" column as unproven.
+Not every test or workflow in this repository has been shown to pass. CI evidence covers only the unauthenticated tests. Treat anything in the "Not yet runtime-verified" column as unproven.
 
 ## Safety and limitations
 
