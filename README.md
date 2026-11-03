@@ -227,11 +227,11 @@ Authenticated tests are excluded from CI. They need a session that a person sign
 
 ### CI verification
 
-The latest verified GitHub Actions run completed successfully: [run 41504909016](https://github.com/abishekvasan2003-del/salesforce-salescloud-playwright-automation/actions/runs/41504909016), for commit `dd9aacf349750c9028b5e3ce0e0c2556be1a0661`, triggered by a push to `main`.
+The latest verified GitHub Actions run completed successfully: [run 41700266678](https://github.com/abishekvasan2003-del/salesforce-salescloud-playwright-automation/actions/runs/41700266678), for commit `96166b8437e8653e5a92f8179918f5a1c6e289d7`, triggered by a push to `main`. Earlier runs for `dd9aacf` ([run 41504909016](https://github.com/abishekvasan2003-del/salesforce-salescloud-playwright-automation/actions/runs/41504909016)), `bbb4e09` and `9c6d8a7` also completed successfully; they are historical.
 
 - **Result:** The run completed with the conclusion `success` on `ubuntu-24.04`.
 - **Steps that succeeded:** `actions/checkout@v7`, `actions/setup-node@v7`, `npm ci`, the type check, the Chromium installation, the unauthenticated Playwright tests, the HTML report upload and the test-results upload.
-- **Tests:** The Playwright summary reported 3 passed. No flaky tests or retries were reported.
+- **Tests:** The Playwright summary annotation reported 3 passed (2.2s). No flaky-test or retry notices appeared in the available annotations. Job logs were not read.
 - **Warnings:** The run had no Node.js 20 deprecation annotation and no `ubuntu-latest` migration annotation. Both appeared in the first CI run, before the action versions were upgraded and the runner was pinned.
 - **Artifacts:** `playwright-report` and `test-results` were uploaded with 30-day retention. The artifacts were not downloaded or opened for this README.
 
@@ -239,7 +239,7 @@ What this run does **not** show:
 
 - It verifies only the **3 unauthenticated tests** (the login smoke test and the two sample Playwright tests). **No authenticated Salesforce test ran in CI.** Those tests need a manually saved login and remain local only.
 - The login smoke test supports both the email-first layout and the username/password layout. This run does not establish which layout branch was exercised, so the other branch has no CI evidence.
-- It is a single successful run and does not demonstrate stability over repeated runs. An earlier CI run of the login smoke test, which then asserted a fixed heading, was reported flaky and passed on retry. That is why the test now detects the layout from the form fields instead.
+- It is one of several consecutive successful runs: the five most recent runs on `main` when checked (`401fab8` through `96166b8`) all completed with `success`. A short streak of runs like this is still not evidence of long-term stability, and the pass counts cover only the 3 unauthenticated tests. An earlier CI run of the login smoke test, which then asserted a fixed heading, was reported flaky and passed on retry. That is why the test now detects the layout from the form fields instead.
 - It was triggered by a push. The pull-request trigger and the pull-request-only cancellation of in-progress runs have not been exercised.
 - The `junit` reporter's output file was not inspected.
 
@@ -269,7 +269,7 @@ The guarded Lead creation and Lead conversion specs were not part of this run.
 | Authentication smoke test | Yes | Yes. 1 of 1 passed locally with a freshly saved manual login. | Not run in CI. |
 | Guarded Lead conversion | Yes | No. | A conversion has never been performed. The confirmation screen and the post-conversion record checks are unverified assumptions. The `SF_CONVERT_LEAD_ID` requirement has not been exercised by this spec. Disabled by default. |
 | Opportunity-less conversion test | Design only (`test.fixme`) | No. | It never runs. |
-| GitHub Actions workflow | Yes | Yes. Latest verified run: 41504909016 (commit `dd9aacf`, push to `main`) succeeded on `ubuntu-24.04` with 3 unauthenticated tests passed and both artifacts uploaded. See [CI verification](#ci-verification). | Repeated-run stability, the pull-request trigger, and any authenticated tests, which are excluded from CI by design. |
+| GitHub Actions workflow | Yes | Yes. Latest verified run: 41700266678 (commit `96166b8`, push to `main`) succeeded on `ubuntu-24.04` with 3 unauthenticated tests passed (2.2s) and both artifacts uploaded. See [CI verification](#ci-verification). | Repeated-run stability, the pull-request trigger, and any authenticated tests, which are excluded from CI by design. |
 | CI reporters | Yes | Partly. In that run the `github` reporter produced a run-summary annotation and a non-empty `playwright-report` artifact was uploaded. | The `junit` output file was not inspected. |
 | Public login smoke test and sample test | Yes | Yes. Passed in the latest CI run (3 tests passed, no flaky tests or retries reported). | Which login layout branch ran, and stability across repeated runs. An earlier CI run of the previous login assertion was flaky. |
 
