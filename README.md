@@ -247,23 +247,33 @@ What this run does **not** show:
 
 The architecture has been inspected statically. Runtime evidence exists only for the components that the passing tests below actually used.
 
-The passing runs listed below were made **before** the sample data was moved out of the specs and into environment variables. The externalized versions of those specs have been type-checked but have not been run, so the pass counts do not yet apply to them.
+### Local authenticated regression verification
+
+The four read-only authenticated specs were run locally against the author's own Salesforce Developer Edition org, using the sample-data environment variables from the local `.env` and a freshly saved manual login. **This was a local run, not a GitHub Actions CI run.** No authenticated test has run in CI.
+
+- **Command:** `npx playwright test --project=authenticated tests/auth-check.auth.spec.ts tests/salesforce-records.auth.spec.ts tests/lead-conversion-dialog.auth.spec.ts tests/lead-conversion-prepare.auth.spec.ts`
+- **Result:** 10 of 10 passed, 0 skipped, 0 failed, 0 retries, in 54.2 seconds.
+- **Per spec:** authentication smoke test 1 of 1, Account/Contact/Opportunity details 3 of 3, Lead conversion dialog 4 of 4, Lead conversion preparation 2 of 2.
+- **Scope:** These specs only open existing records or the Convert Lead dialog and read or cancel. Both destructive guards were disabled, so no Lead creation or conversion ran, and the run did not create, edit, convert or delete any Salesforce record.
+
+The guarded Lead creation and Lead conversion specs were not part of this run.
 
 | Item | Implemented | Runtime-verified | Not yet runtime-verified |
 | --- | --- | --- | --- |
 | Page Object Model and fixtures | Yes. Inspected statically. | Partly. Only the page objects and fixtures used by the passing runs below have runtime evidence. | `LeadConversionResult` and the dialog's `convert()` method. |
 | TypeScript typecheck | Yes | Yes. `npm run typecheck` passed after the CI and reporting changes and again after the sample data was moved to environment variables. The CI run also passed its type check step. | None. |
-| Lead creation workflow | Yes | The workflow passed earlier, before the opt-in guard was added. | The new opt-in guard has not been runtime-tested. |
-| Lead conversion dialog | Yes | Yes. 4 of 4 tests passed, before the sample data was externalized. | The externalized version, including its skip when `SF_CONVERT_LEAD_ID` is missing, has not been run. |
-| Lead conversion preparation | Yes | Yes. 2 of 2 tests passed, before the sample data was externalized. | The externalized version and its skip behavior have not been run. |
-| Account, Contact and Opportunity details | Yes | Yes. 3 of 3 tests passed, before the sample data was externalized. | The externalized version and its skip behavior have not been run. |
-| Guarded Lead conversion | Yes | No. | A conversion has never been performed. The confirmation screen and the post-conversion record checks are unverified assumptions. The new `SF_CONVERT_LEAD_ID` requirement has not been run either. |
+| Lead creation workflow | Yes | The workflow passed earlier, before the opt-in guard was added. | The opt-in guard has not been runtime-tested: runtime verification is pending. The creation test is disabled by default. |
+| Lead conversion dialog | Yes | Yes. 4 of 4 tests passed locally using externalized sample data (see [Local authenticated regression verification](#local-authenticated-regression-verification)). | The skip when `SF_CONVERT_LEAD_ID` is missing was not exercised. Not run in CI. |
+| Lead conversion preparation | Yes | Yes. 2 of 2 tests passed locally using externalized sample data. | The skip when sample data is missing was not exercised. Not run in CI. |
+| Account, Contact and Opportunity details | Yes | Yes. 3 of 3 tests passed locally using externalized sample data. | The skip when sample data is missing was not exercised. Not run in CI. |
+| Authentication smoke test | Yes | Yes. 1 of 1 passed locally with a freshly saved manual login. | Not run in CI. |
+| Guarded Lead conversion | Yes | No. | A conversion has never been performed. The confirmation screen and the post-conversion record checks are unverified assumptions. The `SF_CONVERT_LEAD_ID` requirement has not been exercised by this spec. Disabled by default. |
 | Opportunity-less conversion test | Design only (`test.fixme`) | No. | It never runs. |
 | GitHub Actions workflow | Yes | Yes. Latest verified run: 41504909016 (commit `dd9aacf`, push to `main`) succeeded on `ubuntu-24.04` with 3 unauthenticated tests passed and both artifacts uploaded. See [CI verification](#ci-verification). | Repeated-run stability, the pull-request trigger, and any authenticated tests, which are excluded from CI by design. |
 | CI reporters | Yes | Partly. In that run the `github` reporter produced a run-summary annotation and a non-empty `playwright-report` artifact was uploaded. | The `junit` output file was not inspected. |
 | Public login smoke test and sample test | Yes | Yes. Passed in the latest CI run (3 tests passed, no flaky tests or retries reported). | Which login layout branch ran, and stability across repeated runs. An earlier CI run of the previous login assertion was flaky. |
 
-Not every test or workflow in this repository has been shown to pass. CI evidence covers only the unauthenticated tests. Treat anything in the "Not yet runtime-verified" column as unproven.
+Not every test or workflow in this repository has been shown to pass. CI evidence covers only the unauthenticated tests; the authenticated evidence is from the local run above. Treat anything in the "Not yet runtime-verified" column as unproven.
 
 ## Safety and limitations
 
